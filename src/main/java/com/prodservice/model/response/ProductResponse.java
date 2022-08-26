@@ -15,4 +15,5 @@ public class ProductResponse {
 	private List<ProductDTO> products;
 	private Pagination pagination;
 	private long total;
+	private List<String> brands;
 }

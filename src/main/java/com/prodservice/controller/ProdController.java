@@ -26,9 +26,10 @@ public class ProdController {
 
 	@RequestMapping(value = "/category/{categoryId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getCategory(HttpServletRequest request, @PathVariable String categoryId,
-			@RequestParam String sortBy, @RequestParam int page, @RequestParam int pageSize) throws Exception {
+			@RequestParam String sortBy, @RequestParam String filter, @RequestParam int page,
+			@RequestParam int pageSize) throws Exception {
 		try {
-			ProductResponse prodResponse = prodService.getCategory(categoryId,sortBy, page, pageSize);
+			ProductResponse prodResponse = prodService.getCategory(categoryId, sortBy, filter, page, pageSize);
 			return ResponseEntity.ok(prodResponse);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);

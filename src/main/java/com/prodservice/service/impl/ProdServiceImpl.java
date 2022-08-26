@@ -3,8 +3,12 @@ package com.prodservice.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.json.JSONObject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -44,7 +48,7 @@ public class ProdServiceImpl implements ProdService {
 	}
 
 	@Override
-	public ProductResponse getCategory(String categoryId, String sortBy, int page, int pageSize) {
+	public ProductResponse getCategory(String categoryId, String sortBy, String filter, int page, int pageSize) {
 		ProductResponse productResponse = new ProductResponse();
 		if (categoryId != null && sortBy != null && page != 0 && pageSize != 0) {
 			Pageable pageable = null;
@@ -55,8 +59,35 @@ public class ProdServiceImpl implements ProdService {
 			} else if (sortBy.equals("htol")) {
 				pageable = PageRequest.of(page - 1, pageSize, Sort.by("discountedPrice").descending());
 			}
-
-			Page<ProductEntity> productList = prodRepository.findProductByCategory(categoryId, pageable);
+			Page<ProductEntity> productList = null;
+			JSONObject obj = new JSONObject(filter);
+			if (obj.length() != 0) {
+				Map<String, Object> filterMap = new HashMap<>();
+				filterMap.putAll(obj.toMap());
+				String filterStr = "";
+				String priceStr = "";
+				if (filterMap.get("brand") != null) {
+					filterStr = filterMap.get("brand").toString();
+				}
+				if (filterMap.get("price") != null) {
+					priceStr = filterMap.get("price").toString();
+				}
+				String[] filters = filterStr.split(",");
+				String[] price = priceStr.split(",");
+				if (filters[0].length() > 0 && price[0].length() > 0) {
+					productList = prodRepository.findProductByCategoryFilterPrice(categoryId, filters,
+							Integer.valueOf(price[0]), Integer.valueOf(price[1]), pageable);
+				} else if (price[0].length() > 0) {
+					productList = prodRepository.findProductByCategoryPrice(categoryId, Integer.valueOf(price[0]),
+							Integer.valueOf(price[1]), pageable);
+				} else {
+					productList = prodRepository.findProductByCategoryFilter(categoryId, filters, pageable);
+				}
+			} else {
+				productList = prodRepository.findProductByCategory(categoryId, pageable);
+			}
+			List<String> brands = prodRepository.findProductByCategoryBrand(categoryId);
+			List<String> newList = brands.stream().distinct().collect(Collectors.toList());
 			Pagination pagination = new Pagination();
 			pagination.setPage(productList.getPageable().getPageNumber() + 1);
 			pagination.setPageSize(productList.getPageable().getPageSize());
@@ -83,6 +114,7 @@ public class ProdServiceImpl implements ProdService {
 			productResponse.setProducts(products);
 			productResponse.setPagination(pagination);
 			productResponse.setTotal(productList.getTotalElements());
+			productResponse.setBrands(newList);
 		}
 		return productResponse;
 	}
