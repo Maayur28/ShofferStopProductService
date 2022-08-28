@@ -118,4 +118,14 @@ public class ProdServiceImpl implements ProdService {
 		}
 		return productResponse;
 	}
+
+	@Override
+	public ProductDTO getProduct(String productId) {
+		ProductDTO productResponse = new ProductDTO();
+		if (productId != null) {
+			ProductEntity prodResponse = prodRepository.findProductByProductName(productId);
+			BeanUtils.copyProperties(prodResponse, productResponse);
+		}
+		return productResponse;
+	}
 }

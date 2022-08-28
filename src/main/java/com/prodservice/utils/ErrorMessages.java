@@ -2,8 +2,8 @@ package com.prodservice.utils;
 
 public enum ErrorMessages {
 
-	AUTHENTICATION_FAILED("Invalid username or password"),
-	USER_ALREADY_EXISTS("User already exists");
+	AUTHENTICATION_FAILED("Invalid username or password"), USER_ALREADY_EXISTS("User already exists"),
+	INVALID_REQUEST("Invalid request");
 
 	private String errorMessage;
 
