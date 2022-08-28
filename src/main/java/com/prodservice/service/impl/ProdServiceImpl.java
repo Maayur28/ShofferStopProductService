@@ -128,4 +128,79 @@ public class ProdServiceImpl implements ProdService {
 		}
 		return productResponse;
 	}
+
+	@Override
+	public ProductResponse searchProducts(String searchId, String sortBy, String filter, int page, int pageSize) {
+		ProductResponse productResponse = new ProductResponse();
+		if (searchId != null && sortBy != null && filter != null && page != 0 && pageSize != 0) {
+			Pageable pageable = null;
+			if (sortBy.equals("popularity") || sortBy.equals("betterDiscount")) {
+				pageable = PageRequest.of(page - 1, pageSize, Sort.by("id").descending());
+			} else if (sortBy.equals("ltoh")) {
+				pageable = PageRequest.of(page - 1, pageSize, Sort.by("discountedPrice").ascending());
+			} else if (sortBy.equals("htol")) {
+				pageable = PageRequest.of(page - 1, pageSize, Sort.by("discountedPrice").descending());
+			}
+			Page<ProductEntity> productList = null;
+			JSONObject obj = new JSONObject(filter);
+			if (obj.length() != 0) {
+				Map<String, Object> filterMap = new HashMap<>();
+				filterMap.putAll(obj.toMap());
+				String filterStr = "";
+				String priceStr = "";
+				if (filterMap.get("brand") != null) {
+					filterStr = filterMap.get("brand").toString();
+				}
+				if (filterMap.get("price") != null) {
+					priceStr = filterMap.get("price").toString();
+				}
+				String[] filters = filterStr.split(",");
+				String[] price = priceStr.split(",");
+				if (filters[0].length() > 0 && price[0].length() > 0) {
+					productList = prodRepository.findProductBySearchFilterPrice(searchId, filters,
+							Integer.valueOf(price[0]), Integer.valueOf(price[1]), pageable);
+				} else if (price[0].length() > 0) {
+					productList = prodRepository.findProductBySearchPrice(searchId, Integer.valueOf(price[0]),
+							Integer.valueOf(price[1]), pageable);
+				} else if (filters[0].length() > 0) {
+					productList = prodRepository.findProductBySearchFilter(searchId, filters, pageable);
+				}
+				else {
+					productList = prodRepository.findProductBySearchId(searchId, pageable);
+				}
+			} else {
+				productList = prodRepository.findProductBySearchId(searchId, pageable);
+			}
+			List<String> brands = prodRepository.findBrandsBySearch(searchId);
+			List<String> newList = brands.stream().distinct().collect(Collectors.toList());
+			Pagination pagination = new Pagination();
+			pagination.setPage(productList.getPageable().getPageNumber() + 1);
+			pagination.setPageSize(productList.getPageable().getPageSize());
+
+			List<ProductDTO> products = new ArrayList<>();
+
+			if (sortBy.equals("betterDiscount")) {
+				ProductEntity[] array = new ProductEntity[productList.getContent().size()];
+				productList.getContent().toArray(array);
+				Arrays.sort(array, new DiscountComparator());
+				List<ProductEntity> prodList = Arrays.asList(array);
+				for (ProductEntity prod : prodList) {
+					ProductDTO prods = new ProductDTO();
+					BeanUtils.copyProperties(prod, prods);
+					products.add(prods);
+				}
+			} else {
+				for (ProductEntity prod : productList.getContent()) {
+					ProductDTO prods = new ProductDTO();
+					BeanUtils.copyProperties(prod, prods);
+					products.add(prods);
+				}
+			}
+			productResponse.setProducts(products);
+			productResponse.setPagination(pagination);
+			productResponse.setTotal(productList.getTotalElements());
+			productResponse.setBrands(newList);
+		}
+		return productResponse;
+	}
 }

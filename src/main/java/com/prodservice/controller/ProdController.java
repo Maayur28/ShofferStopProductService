@@ -65,11 +65,21 @@ public class ProdController {
 	}
 
 	@RequestMapping(value = "/ratings", method = RequestMethod.GET)
-	public ResponseEntity<?> getRating(@RequestParam String userId,
-			@RequestParam String productName) throws Exception {
+	public ResponseEntity<?> getRating(@RequestParam String userId, @RequestParam String productName) throws Exception {
 		try {
-			RatingCreateResponse totalRatings = ratingService.getRating(userId,productName);
+			RatingCreateResponse totalRatings = ratingService.getRating(userId, productName);
 			return ResponseEntity.ok(totalRatings);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	@RequestMapping(value = "/search/{searchId}", method = RequestMethod.GET)
+	public ResponseEntity<?> getSearchProducts(@PathVariable String searchId, @RequestParam String sortBy,
+			@RequestParam String filter, @RequestParam int page, @RequestParam int pageSize) throws Exception {
+		try {
+			ProductResponse prodResponse = prodService.searchProducts(searchId, sortBy, filter, page, pageSize);
+			return ResponseEntity.ok(prodResponse);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}
