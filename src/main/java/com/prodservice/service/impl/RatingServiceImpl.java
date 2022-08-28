@@ -2,7 +2,6 @@ package com.prodservice.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +88,7 @@ public class RatingServiceImpl implements RatingService {
 	}
 
 	@Override
-	public RatingCreateResponse getRating(Optional<String> userId, String productName) throws Exception {
+	public RatingCreateResponse getRating(String userId, String productName) throws Exception {
 		if (productName == null) {
 			JSONObject obj = new JSONObject();
 			obj.put("error", ErrorMessages.INVALID_REQUEST.getErrorMessage().toString());
@@ -101,10 +100,10 @@ public class RatingServiceImpl implements RatingService {
 
 		List<Integer> ratings = new ArrayList<>();
 
-		if (userId == null || userId.isEmpty() || userId.get() == null) {
+		if (userId == null) {
 			ratingCreateResponse.setUserRating(0);
 		} else {
-			RatingEntity userRating = ratingRepository.findRatingByProductNameAndUserId(userId.get(), productName);
+			RatingEntity userRating = ratingRepository.findRatingByProductNameAndUserId(userId, productName);
 			if (userRating == null) {
 				ratingCreateResponse.setUserRating(0);
 			} else {

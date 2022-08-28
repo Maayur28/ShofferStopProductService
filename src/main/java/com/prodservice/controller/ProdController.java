@@ -1,7 +1,5 @@
 package com.prodservice.controller;
 
-import java.util.Optional;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +65,7 @@ public class ProdController {
 	}
 
 	@RequestMapping(value = "/ratings", method = RequestMethod.GET)
-	public ResponseEntity<?> getRating(@RequestParam Optional<String> userId,
+	public ResponseEntity<?> getRating(@RequestParam String userId,
 			@RequestParam String productName) throws Exception {
 		try {
 			RatingCreateResponse totalRatings = ratingService.getRating(userId,productName);
