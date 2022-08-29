@@ -77,7 +77,7 @@ public class PromotionServiceImpl implements PromotionService {
 								at99 = true;
 								prod.setProdImage(image);
 								ProductDTO prods = new ProductDTO();
-								BeanUtils.copyProperties(prods, prod);
+								BeanUtils.copyProperties(prod, prods);
 								prods.setDiscountedPrice(99);
 								promoResponse.setAt99(prods);
 								break;
@@ -105,7 +105,7 @@ public class PromotionServiceImpl implements PromotionService {
 								at499 = true;
 								prod.setProdImage(image);
 								ProductDTO prods = new ProductDTO();
-								BeanUtils.copyProperties(prods, prod);
+								BeanUtils.copyProperties(prod, prods);
 								prods.setDiscountedPrice(499);
 								promoResponse.setAt499(prods);
 								break;
@@ -133,7 +133,7 @@ public class PromotionServiceImpl implements PromotionService {
 								at999 = true;
 								prod.setProdImage(image);
 								ProductDTO prods = new ProductDTO();
-								BeanUtils.copyProperties(prods, prod);
+								BeanUtils.copyProperties(prod, prods);
 								prods.setDiscountedPrice(999);
 								promoResponse.setAt999(prods);
 								break;
@@ -161,7 +161,7 @@ public class PromotionServiceImpl implements PromotionService {
 								bogo = true;
 								prod.setProdImage(image);
 								ProductDTO prods = new ProductDTO();
-								BeanUtils.copyProperties(prods, prod);
+								BeanUtils.copyProperties(prod, prods);
 								carousel.add(prods);
 								break;
 							}
@@ -186,7 +186,7 @@ public class PromotionServiceImpl implements PromotionService {
 								prod.setProdImage(image);
 								productDotd = prod.getProductName();
 								ProductDTO prods = new ProductDTO();
-								BeanUtils.copyProperties(prods, prod);
+								BeanUtils.copyProperties(prod, prods);
 								prods.setDiscountedPrice(prods.getRetailPrice() / 10);
 								carousel.add(prods);
 								break;
@@ -221,7 +221,7 @@ public class PromotionServiceImpl implements PromotionService {
 						if (isValid) {
 							product.setProdImage(image);
 							ProductDTO prodds = new ProductDTO();
-							BeanUtils.copyProperties(prodds, product);
+							BeanUtils.copyProperties(product,prodds);
 							if (i == 0) {
 								prodds.setDiscountedPrice(99);
 								promoResponse.setAt99(prodds);
