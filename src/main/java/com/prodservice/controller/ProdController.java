@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.prodservice.model.request.RatingCreateRequest;
 import com.prodservice.model.response.ProductResponse;
+import com.prodservice.model.response.PromotionResponse;
 import com.prodservice.model.response.RatingCreateResponse;
 import com.prodservice.service.ProdService;
+import com.prodservice.service.PromotionService;
 import com.prodservice.service.RatingService;
 import com.prodservice.shared.dto.ProductDTO;
 
@@ -31,6 +33,9 @@ public class ProdController {
 
 	@Autowired
 	RatingService ratingService;
+	
+	@Autowired
+	PromotionService promoService;
 
 	@RequestMapping(value = "/category/{categoryId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getCategory(HttpServletRequest request, @PathVariable String categoryId,
@@ -80,6 +85,16 @@ public class ProdController {
 		try {
 			ProductResponse prodResponse = prodService.searchProducts(searchId, sortBy, filter, page, pageSize);
 			return ResponseEntity.ok(prodResponse);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@RequestMapping(value = "/promotions", method = RequestMethod.GET)
+	public ResponseEntity<?> getPromotions() throws Exception {
+		try {
+			PromotionResponse promoResponse = promoService.getPromotion();
+			return ResponseEntity.ok(promoResponse);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}
