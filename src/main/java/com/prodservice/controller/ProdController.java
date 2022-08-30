@@ -33,7 +33,7 @@ public class ProdController {
 
 	@Autowired
 	RatingService ratingService;
-	
+
 	@Autowired
 	PromotionService promoService;
 
@@ -89,7 +89,7 @@ public class ProdController {
 			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}
 	}
-	
+
 	@RequestMapping(value = "/promotions", method = RequestMethod.GET)
 	public ResponseEntity<?> getPromotions() throws Exception {
 		try {

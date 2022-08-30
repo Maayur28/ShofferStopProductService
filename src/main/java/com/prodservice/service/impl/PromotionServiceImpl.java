@@ -1,7 +1,6 @@
 package com.prodservice.service.impl;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
@@ -11,6 +10,9 @@ import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +27,7 @@ import com.prodservice.service.PromotionService;
 import com.prodservice.shared.dto.ProductDTO;
 
 @Service
+@CacheConfig(cacheNames = { "promotion" })
 public class PromotionServiceImpl implements PromotionService {
 
 	@Autowired
@@ -34,11 +37,12 @@ public class PromotionServiceImpl implements PromotionService {
 	ProdRepository prodRepository;
 
 	@Override
-	public PromotionResponse getPromotion() throws IOException, IllegalAccessException, InvocationTargetException {
+	@Cacheable(cacheNames = "promotion")
+	public PromotionResponse getPromotion() throws IOException {
 		PromotionResponse promoResponse = new PromotionResponse();
 
 		PromotionEntity promo = promoRepository.findByPromoId("promo_mayur28");
-		LocalDate today = LocalDate.now();
+		LocalDate today = LocalDate.now().plusDays(4);
 		if (promo == null) {
 			promo = new PromotionEntity();
 			promo.setPromoId("promo_mayur28");
@@ -53,202 +57,142 @@ public class PromotionServiceImpl implements PromotionService {
 			LocalDate oldDate = LocalDate.parse(promo.getPromoDate());
 			Period diff = Period.between(oldDate, today);
 			if (diff.getDays() > 0 || diff.getMonths() > 0 || diff.getYears() > 0) {
-				Pageable pageable = PageRequest.of(0, 5);
-				boolean at99 = false, at499 = false, at999 = false, bogo = false, dotd = false;
-				String product99 = "", product499 = "", product999 = "", productBogo = "", productDotd = "";
-				String[] promoAtProd = new String[3];
-				String prodBogo = "bogo";
-				int index = 0;
-				while (!at99) {
-					Page<ProductEntity> at99Product = prodRepository.findPromoAt(99, 499, pageable);
-					for (ProductEntity prod : at99Product.getContent()) {
-						boolean isValid = false;
-						String[] images = prod.getProdImage().split(",");
-						for (String image : images) {
-							image = image.replace("[", "").replace("]", "");
-							image = image.replace("\"", "").replace("\"", "");
-							image = image.replace("http://img5a", "https://rukminim1")
-									.replace("http://img6a", "https://rukminim1").trim();
-							isValid = validateUrl(image);
-							if (isValid) {
-								promoAtProd[index] = prod.getProductName();
-								product99 = prod.getProductName();
-								index += 1;
-								at99 = true;
-								prod.setProdImage(image);
-								ProductDTO prods = new ProductDTO();
-								BeanUtils.copyProperties(prod, prods);
-								prods.setDiscountedPrice(99);
-								promoResponse.setAt99(prods);
-								break;
-							}
-						}
-						if (isValid)
-							break;
-					}
-				}
-				while (!at499) {
-					Page<ProductEntity> at499Product = prodRepository.findPromoAt(499, 999, pageable);
-					for (ProductEntity prod : at499Product.getContent()) {
-						boolean isValid = false;
-						String[] images = prod.getProdImage().split(",");
-						for (String image : images) {
-							image = image.replace("[", "").replace("]", "");
-							image = image.replace("\"", "").replace("\"", "");
-							image = image.replace("http://img5a", "https://rukminim1")
-									.replace("http://img6a", "https://rukminim1").trim();
-							isValid = validateUrl(image);
-							if (isValid) {
-								promoAtProd[index] = prod.getProductName();
-								product499 = prod.getProductName();
-								index += 1;
-								at499 = true;
-								prod.setProdImage(image);
-								ProductDTO prods = new ProductDTO();
-								BeanUtils.copyProperties(prod, prods);
-								prods.setDiscountedPrice(499);
-								promoResponse.setAt499(prods);
-								break;
-							}
-						}
-						if (isValid)
-							break;
-					}
-				}
-				while (!at999) {
-					Page<ProductEntity> at999Product = prodRepository.findPromoAt(999, 99999, pageable);
-					for (ProductEntity prod : at999Product.getContent()) {
-						boolean isValid = false;
-						String[] images = prod.getProdImage().split(",");
-						for (String image : images) {
-							image = image.replace("[", "").replace("]", "");
-							image = image.replace("\"", "").replace("\"", "");
-							image = image.replace("http://img5a", "https://rukminim1")
-									.replace("http://img6a", "https://rukminim1").trim();
-							isValid = validateUrl(image);
-							if (isValid) {
-								promoAtProd[index] = prod.getProductName();
-								product999 = prod.getProductName();
-								index += 1;
-								at999 = true;
-								prod.setProdImage(image);
-								ProductDTO prods = new ProductDTO();
-								BeanUtils.copyProperties(prod, prods);
-								prods.setDiscountedPrice(999);
-								promoResponse.setAt999(prods);
-								break;
-							}
-						}
-						if (isValid)
-							break;
-					}
-				}
-				List<ProductDTO> carousel = new ArrayList<>();
-				while (!bogo) {
-					Page<ProductEntity> bogoProduct = prodRepository.findProdPromo(promoAtProd, prodBogo, pageable);
-					for (ProductEntity prod : bogoProduct.getContent()) {
-						boolean isValid = false;
-						String[] images = prod.getProdImage().split(",");
-						for (String image : images) {
-							image = image.replace("[", "").replace("]", "");
-							image = image.replace("\"", "").replace("\"", "");
-							image = image.replace("http://img5a", "https://rukminim1")
-									.replace("http://img6a", "https://rukminim1").trim();
-							isValid = validateUrl(image);
-							if (isValid) {
-								prodBogo = prod.getProductName();
-								productBogo = prod.getProductName();
-								bogo = true;
-								prod.setProdImage(image);
-								ProductDTO prods = new ProductDTO();
-								BeanUtils.copyProperties(prod, prods);
-								carousel.add(prods);
-								break;
-							}
-						}
-						if (isValid)
-							break;
-					}
-				}
-				while (!dotd) {
-					Page<ProductEntity> dotdProduct = prodRepository.findProdPromo(promoAtProd, prodBogo, pageable);
-					for (ProductEntity prod : dotdProduct.getContent()) {
-						boolean isValid = false;
-						String[] images = prod.getProdImage().split(",");
-						for (String image : images) {
-							image = image.replace("[", "").replace("]", "");
-							image = image.replace("\"", "").replace("\"", "");
-							image = image.replace("http://img5a", "https://rukminim1")
-									.replace("http://img6a", "https://rukminim1").trim();
-							isValid = validateUrl(image);
-							if (isValid) {
-								dotd = true;
-								prod.setProdImage(image);
-								productDotd = prod.getProductName();
-								ProductDTO prods = new ProductDTO();
-								BeanUtils.copyProperties(prod, prods);
-								prods.setDiscountedPrice(prods.getRetailPrice() / 10);
-								carousel.add(prods);
-								break;
-							}
-						}
-						if (isValid)
-							break;
-					}
-				}
-				promoRepository.updatePromo("promo_mayur28", product99, product499, product999, productBogo,
-						productDotd, today.toString());
-				promoResponse.setCarouselPromo(carousel);
+				promoResponse = constructPromotion(promoResponse, today.toString());
 			} else {
-				List<String> prods = new ArrayList<>();
-				prods.add(promo.getAt99());
-				prods.add(promo.getAt499());
-				prods.add(promo.getAt999());
-				prods.add(promo.getBogo());
-				prods.add(promo.getDotd());
-				int i = 0;
-				List<ProductDTO> carousel = new ArrayList<>();
-				for (String prod : prods) {
-					ProductEntity product = prodRepository.findProductByProductName(prod);
-					boolean isValid = false;
-					String[] images = product.getProdImage().split(",");
-					for (String image : images) {
-						image = image.replace("[", "").replace("]", "");
-						image = image.replace("\"", "").replace("\"", "");
-						image = image.replace("http://img5a", "https://rukminim1")
-								.replace("http://img6a", "https://rukminim1").trim();
-						isValid = validateUrl(image);
-						if (isValid) {
-							product.setProdImage(image);
-							ProductDTO prodds = new ProductDTO();
-							BeanUtils.copyProperties(product,prodds);
-							if (i == 0) {
-								prodds.setDiscountedPrice(99);
-								promoResponse.setAt99(prodds);
-							}
-							if (i == 1) {
-								prodds.setDiscountedPrice(499);
-								promoResponse.setAt499(prodds);
-							}
-							if (i == 2) {
-								prodds.setDiscountedPrice(999);
-								promoResponse.setAt999(prodds);
-							}
-							if (i == 3) {
-								carousel.add(prodds);
-							}
-							if (i == 4) {
-								prodds.setDiscountedPrice(prodds.getRetailPrice() / 10);
-								carousel.add(prodds);
-							}
-							i++;
-							break;
-						}
-					}
-				}
-				promoResponse.setCarouselPromo(carousel);
+				promoResponse = getPromotion(promoResponse, promo);
 			}
 		}
+		return promoResponse;
+	}
+
+	@CachePut(value = "promotion", key = "promo")
+	public PromotionResponse constructPromotion(PromotionResponse promoResponse, String today) throws IOException {
+		Pageable pageable = PageRequest.of(0, 5);
+		String product99 = "", product499 = "", product999 = "", productBogo = "mayurag", productDotd = "";
+		String[] promoAtProd = new String[3];
+		int index = 0;
+		List<ProductDTO> carousel = new ArrayList<>();
+		ProductDTO prods = new ProductDTO();
+
+		while (product99.isEmpty()) {
+			Page<ProductEntity> product = prodRepository.findPromoAt(99, 499, pageable);
+			product99 = constuctImage(promoResponse, product, prods);
+			promoAtProd[index] = product99;
+			index += 1;
+			prods.setDiscountedPrice(99);
+			promoResponse.setAt99(prods);
+		}
+		while (product499.isEmpty()) {
+			prods = new ProductDTO();
+			Page<ProductEntity> product = prodRepository.findPromoAt(499, 999, pageable);
+			product499 = constuctImage(promoResponse, product, prods);
+			promoAtProd[index] = product499;
+			index += 1;
+			prods.setDiscountedPrice(499);
+			promoResponse.setAt499(prods);
+		}
+		while (product999.isEmpty()) {
+			prods = new ProductDTO();
+			Page<ProductEntity> product = prodRepository.findPromoAt(999, 9999, pageable);
+			product999 = constuctImage(promoResponse, product, prods);
+			promoAtProd[index] = product999;
+			index += 1;
+			prods.setDiscountedPrice(999);
+			promoResponse.setAt999(prods);
+		}
+		while (productBogo.equals("mayurag")) {
+			prods = new ProductDTO();
+			Page<ProductEntity> product = prodRepository.findProdPromo(promoAtProd, productBogo, pageable);
+			productBogo = constuctImage(promoResponse, product, prods);
+			carousel.add(prods);
+		}
+		while (productDotd.isEmpty()) {
+			prods = new ProductDTO();
+			Page<ProductEntity> product = prodRepository.findProdPromo(promoAtProd, productBogo, pageable);
+			productDotd = constuctImage(promoResponse, product, prods);
+			prods.setDiscountedPrice(prods.getRetailPrice() / 10);
+			carousel.add(prods);
+		}
+		promoRepository.updatePromo("promo_mayur28", product99, product499, product999, productBogo, productDotd,
+				today);
+		promoResponse.setCarouselPromo(carousel);
+		return promoResponse;
+	}
+
+	private String constuctImage(PromotionResponse promoResponse, Page<ProductEntity> product, ProductDTO prods)
+			throws IOException {
+		String productName = "";
+		for (ProductEntity prod : product.getContent()) {
+			boolean isValid = false;
+			String[] images = prod.getProdImage().split(",");
+			for (String image : images) {
+				image = image.replace("[", "").replace("]", "");
+				image = image.replace("\"", "").replace("\"", "");
+				image = image.replace("http://img5a", "https://rukminim1").replace("http://img6a", "https://rukminim1")
+						.trim();
+				isValid = validateUrl(image);
+				if (isValid) {
+					productName = prod.getProductName();
+					prod.setProdImage(image);
+					BeanUtils.copyProperties(prod, prods);
+					break;
+				}
+			}
+			if (isValid)
+				break;
+		}
+		return productName;
+	}
+
+	@Cacheable(value = "promotion", key = "promo")
+	private PromotionResponse getPromotion(PromotionResponse promoResponse, PromotionEntity promo) throws IOException {
+		List<String> prods = new ArrayList<>();
+		prods.add(promo.getAt99());
+		prods.add(promo.getAt499());
+		prods.add(promo.getAt999());
+		prods.add(promo.getBogo());
+		prods.add(promo.getDotd());
+		int i = 0;
+		List<ProductDTO> carousel = new ArrayList<>();
+		for (String prod : prods) {
+			ProductEntity product = prodRepository.findProductByProductName(prod);
+			boolean isValid = false;
+			String[] images = product.getProdImage().split(",");
+			for (String image : images) {
+				image = image.replace("[", "").replace("]", "");
+				image = image.replace("\"", "").replace("\"", "");
+				image = image.replace("http://img5a", "https://rukminim1").replace("http://img6a", "https://rukminim1")
+						.trim();
+				isValid = validateUrl(image);
+				if (isValid) {
+					product.setProdImage(image);
+					ProductDTO prodds = new ProductDTO();
+					BeanUtils.copyProperties(product, prodds);
+					if (i == 0) {
+						prodds.setDiscountedPrice(99);
+						promoResponse.setAt99(prodds);
+					}
+					if (i == 1) {
+						prodds.setDiscountedPrice(499);
+						promoResponse.setAt499(prodds);
+					}
+					if (i == 2) {
+						prodds.setDiscountedPrice(999);
+						promoResponse.setAt999(prodds);
+					}
+					if (i == 3) {
+						carousel.add(prodds);
+					}
+					if (i == 4) {
+						prodds.setDiscountedPrice(prodds.getRetailPrice() / 10);
+						carousel.add(prodds);
+					}
+					i++;
+					break;
+				}
+			}
+		}
+		promoResponse.setCarouselPromo(carousel);
 		return promoResponse;
 	}
 
