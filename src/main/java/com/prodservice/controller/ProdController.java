@@ -1,5 +1,7 @@
 package com.prodservice.controller;
 
+import java.time.LocalDate;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,7 +96,13 @@ public class ProdController {
 	public ResponseEntity<?> getPromotions() throws Exception {
 		try {
 			PromotionResponse promoResponse = promoService.getPromotion();
-			return ResponseEntity.ok(promoResponse);
+			if (promoResponse.getDate().equals(LocalDate.now().toString())) {
+				return ResponseEntity.ok(promoResponse);
+			} else {
+				promoService.clearPromotion();
+				promoResponse = promoService.getPromotion();
+				return ResponseEntity.ok(promoResponse);
+			}
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}

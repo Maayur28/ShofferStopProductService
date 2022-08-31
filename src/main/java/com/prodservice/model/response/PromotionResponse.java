@@ -16,4 +16,5 @@ public class PromotionResponse {
 	private ProductDTO at99;
 	private ProductDTO at499;
 	private ProductDTO at999;
+	public String date; 
 }
