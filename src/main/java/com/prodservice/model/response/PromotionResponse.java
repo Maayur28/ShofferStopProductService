@@ -13,8 +13,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PromotionResponse {
 	private List<ProductDTO> carouselPromo;
-	private ProductDTO at99;
-	private ProductDTO at499;
-	private ProductDTO at999;
-	public String date; 
+	private List<ProductDTO> at99;
+	private List<ProductDTO> at499;
+	private List<ProductDTO> at999;
+	public String date;
 }

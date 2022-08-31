@@ -19,8 +19,8 @@ public interface ProdRepository extends PagingAndSortingRepository<ProductEntity
 	@Query("SELECT p FROM products p where p.retailPrice> :min and p.retailPrice<= :max ORDER BY NEWID()")
 	Page<ProductEntity> findPromoAt(int min, int max, Pageable pageable);
 
-	@Query("SELECT p FROM products p where p.productName NOT IN :promoAtProd and p.productName <> :prodBogo  ORDER BY NEWID()")
-	Page<ProductEntity> findProdPromo(String[] promoAtProd, String prodBogo, Pageable pageable);
+	@Query("SELECT p FROM products p where p.productName <> :prodBogo  ORDER BY NEWID()")
+	Page<ProductEntity> findProdPromo(String prodBogo, Pageable pageable);
 
 	@Query("SELECT p FROM products p where  p.productCategory = :categoryId")
 	Page<ProductEntity> findProductByCategory(String categoryId, Pageable pageable);
