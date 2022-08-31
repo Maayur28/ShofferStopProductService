@@ -73,9 +73,9 @@ public class PromotionServiceImpl implements PromotionService {
 
 		prodCopy = new ProductDTO();
 		product = prodRepository.findProdPromo(productBogo, pageable);
-		productDotd = product.getContent().get(0).getProductName();
-		product.getContent().get(0).setDiscountedPrice(product.getContent().get(0).getRetailPrice() / 10);
 		BeanUtils.copyProperties(product.getContent().get(0), prodCopy);
+		productDotd = prodCopy.getProductName();
+		prodCopy.setDiscountedPrice(prodCopy.getRetailPrice() / 10);
 		carousel.add(prodCopy);
 
 		// AT 99 Offer
@@ -84,9 +84,9 @@ public class PromotionServiceImpl implements PromotionService {
 		product = prodRepository.findPromoAt(99, 499, pageable);
 		for (ProductEntity prod : product.getContent()) {
 			prodCopy = new ProductDTO();
-			productNames.add(prod.getProductName());
-			prod.setDiscountedPrice(99);
 			BeanUtils.copyProperties(prod, prodCopy);
+			productNames.add(prodCopy.getProductName());
+			prodCopy.setDiscountedPrice(99);
 			atProd.add(prodCopy);
 		}
 		product99 = String.join(",", productNames);
@@ -99,9 +99,9 @@ public class PromotionServiceImpl implements PromotionService {
 		product = prodRepository.findPromoAt(499, 999, pageable);
 		for (ProductEntity prod : product.getContent()) {
 			prodCopy = new ProductDTO();
-			productNames.add(prod.getProductName());
-			prod.setDiscountedPrice(499);
 			BeanUtils.copyProperties(prod, prodCopy);
+			productNames.add(prodCopy.getProductName());
+			prodCopy.setDiscountedPrice(499);
 			atProd.add(prodCopy);
 		}
 		product499 = String.join(",", productNames);
@@ -114,9 +114,9 @@ public class PromotionServiceImpl implements PromotionService {
 		product = prodRepository.findPromoAt(999, 9999, pageable);
 		for (ProductEntity prod : product.getContent()) {
 			prodCopy = new ProductDTO();
-			productNames.add(prod.getProductName());
-			prod.setDiscountedPrice(999);
 			BeanUtils.copyProperties(prod, prodCopy);
+			productNames.add(prodCopy.getProductName());
+			prodCopy.setDiscountedPrice(999);
 			atProd.add(prodCopy);
 		}
 		product999 = String.join(",", productNames);
