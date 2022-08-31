@@ -115,7 +115,7 @@ public class PromotionServiceImpl implements PromotionService {
 		for (ProductEntity prod : product.getContent()) {
 			prodCopy = new ProductDTO();
 			productNames.add(prod.getProductName());
-			prod.setDiscountedPrice(499);
+			prod.setDiscountedPrice(999);
 			BeanUtils.copyProperties(prod, prodCopy);
 			atProd.add(prodCopy);
 		}
