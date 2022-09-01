@@ -1,5 +1,7 @@
 package com.prodservice.service.impl;
 
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -18,10 +20,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.prodservice.entity.ProductEntity;
+import com.prodservice.entity.PromotionEntity;
 import com.prodservice.model.response.Pagination;
 import com.prodservice.model.response.ProductResponse;
 import com.prodservice.repository.ProdRepository;
+import com.prodservice.repository.PromotionRepository;
 import com.prodservice.service.ProdService;
+import com.prodservice.service.PromotionService;
 import com.prodservice.shared.dto.ProductDTO;
 
 @Service
@@ -29,6 +34,12 @@ public class ProdServiceImpl implements ProdService {
 
 	@Autowired
 	ProdRepository prodRepository;
+
+	@Autowired
+	PromotionService promoService;
+
+	@Autowired
+	PromotionRepository promoRepository;
 
 	public class DiscountComparator implements Comparator<ProductEntity> {
 
@@ -48,7 +59,8 @@ public class ProdServiceImpl implements ProdService {
 	}
 
 	@Override
-	public ProductResponse getCategory(String categoryId, String sortBy, String filter, int page, int pageSize) {
+	public ProductResponse getCategory(String categoryId, String sortBy, String filter, int page, int pageSize)
+			throws IOException {
 		ProductResponse productResponse = new ProductResponse();
 		if (categoryId != null && sortBy != null && page != 0 && pageSize != 0) {
 			Pageable pageable = null;
@@ -111,26 +123,64 @@ public class ProdServiceImpl implements ProdService {
 					products.add(prods);
 				}
 			}
+			PromotionEntity promoResponse = promoRepository.findByPromoId("promo_mayur28");
+			if (!promoResponse.getPromoDate().equals(LocalDate.now().toString())) {
+				promoService.clearPromotion();
+				promoService.getPromotion();
+				promoResponse = promoRepository.findByPromoId("promo_mayur28");
+			}
+			for (ProductDTO prods : products) {
+				setProductPromo(prods, promoResponse);
+			}
 			productResponse.setProducts(products);
 			productResponse.setPagination(pagination);
 			productResponse.setTotal(productList.getTotalElements());
 			productResponse.setBrands(newList);
+
 		}
 		return productResponse;
 	}
 
 	@Override
-	public ProductDTO getProduct(String productId) {
+	public ProductDTO getProduct(String productId) throws IOException {
 		ProductDTO productResponse = new ProductDTO();
 		if (productId != null) {
 			ProductEntity prodResponse = prodRepository.findProductByProductName(productId);
+			PromotionEntity promoResponse = promoRepository.findByPromoId("promo_mayur28");
+			if (!promoResponse.getPromoDate().equals(LocalDate.now().toString())) {
+				promoService.clearPromotion();
+				promoService.getPromotion();
+				promoResponse = promoRepository.findByPromoId("promo_mayur28");
+			}
 			BeanUtils.copyProperties(prodResponse, productResponse);
+			setProductPromo(productResponse, promoResponse);
 		}
 		return productResponse;
 	}
 
+	private void setProductPromo(ProductDTO productResponse, PromotionEntity promoResponse) {
+		List<String> at99 = Arrays.asList(promoResponse.getAt99().split(","));
+		List<String> at499 = Arrays.asList(promoResponse.getAt499().split(","));
+		List<String> at999 = Arrays.asList(promoResponse.getAt999().split(","));
+		if (productResponse.getProductName().equalsIgnoreCase(promoResponse.getBogo())) {
+			productResponse.setPromotionMessage("Buy One Get One");
+		} else if (productResponse.getProductName().equalsIgnoreCase(promoResponse.getDotd())) {
+			productResponse.setPromotionMessage("Flash Deal");
+			productResponse.setDiscountedPrice(productResponse.getRetailPrice() / 10);
+		} else if (at99.contains(productResponse.getProductName())) {
+			productResponse.setPromotionMessage("At ₹99 Only");
+			productResponse.setDiscountedPrice(99);
+		} else if (at499.contains(productResponse.getProductName())) {
+			productResponse.setPromotionMessage("At ₹499 Only");
+			productResponse.setDiscountedPrice(499);
+		} else if (at999.contains(productResponse.getProductName())) {
+			productResponse.setPromotionMessage("At ₹999 Only");
+			productResponse.setDiscountedPrice(999);
+		}
+	}
+
 	@Override
-	public ProductResponse searchProducts(String searchId, String sortBy, String filter, int page, int pageSize) {
+	public ProductResponse searchProducts(String searchId, String sortBy, String filter, int page, int pageSize) throws IOException {
 		ProductResponse productResponse = new ProductResponse();
 		if (searchId != null && sortBy != null && filter != null && page != 0 && pageSize != 0) {
 			Pageable pageable = null;
@@ -164,8 +214,7 @@ public class ProdServiceImpl implements ProdService {
 							Integer.valueOf(price[1]), pageable);
 				} else if (filters[0].length() > 0) {
 					productList = prodRepository.findProductBySearchFilter(searchId, filters, pageable);
-				}
-				else {
+				} else {
 					productList = prodRepository.findProductBySearchId(searchId, pageable);
 				}
 			} else {
@@ -196,6 +245,17 @@ public class ProdServiceImpl implements ProdService {
 					products.add(prods);
 				}
 			}
+			
+			PromotionEntity promoResponse = promoRepository.findByPromoId("promo_mayur28");
+			if (!promoResponse.getPromoDate().equals(LocalDate.now().toString())) {
+				promoService.clearPromotion();
+				promoService.getPromotion();
+				promoResponse = promoRepository.findByPromoId("promo_mayur28");
+			}
+			for (ProductDTO prods : products) {
+				setProductPromo(prods, promoResponse);
+			}
+			
 			productResponse.setProducts(products);
 			productResponse.setPagination(pagination);
 			productResponse.setTotal(productList.getTotalElements());
