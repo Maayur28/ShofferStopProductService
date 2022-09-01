@@ -124,7 +124,7 @@ public class ProdServiceImpl implements ProdService {
 				}
 			}
 			PromotionEntity promoResponse = promoRepository.findByPromoId("promo_mayur28");
-			if (!promoResponse.getPromoDate().equals(LocalDate.now().toString())) {
+			if (promoResponse == null || !promoResponse.getPromoDate().equals(LocalDate.now().toString())) {
 				promoService.clearPromotion();
 				promoService.getPromotion();
 				promoResponse = promoRepository.findByPromoId("promo_mayur28");
@@ -147,7 +147,7 @@ public class ProdServiceImpl implements ProdService {
 		if (productId != null) {
 			ProductEntity prodResponse = prodRepository.findProductByProductName(productId);
 			PromotionEntity promoResponse = promoRepository.findByPromoId("promo_mayur28");
-			if (!promoResponse.getPromoDate().equals(LocalDate.now().toString())) {
+			if (promoResponse == null || !promoResponse.getPromoDate().equals(LocalDate.now().toString())) {
 				promoService.clearPromotion();
 				promoService.getPromotion();
 				promoResponse = promoRepository.findByPromoId("promo_mayur28");
@@ -180,7 +180,8 @@ public class ProdServiceImpl implements ProdService {
 	}
 
 	@Override
-	public ProductResponse searchProducts(String searchId, String sortBy, String filter, int page, int pageSize) throws IOException {
+	public ProductResponse searchProducts(String searchId, String sortBy, String filter, int page, int pageSize)
+			throws IOException {
 		ProductResponse productResponse = new ProductResponse();
 		if (searchId != null && sortBy != null && filter != null && page != 0 && pageSize != 0) {
 			Pageable pageable = null;
@@ -245,9 +246,9 @@ public class ProdServiceImpl implements ProdService {
 					products.add(prods);
 				}
 			}
-			
+
 			PromotionEntity promoResponse = promoRepository.findByPromoId("promo_mayur28");
-			if (!promoResponse.getPromoDate().equals(LocalDate.now().toString())) {
+			if (promoResponse == null || !promoResponse.getPromoDate().equals(LocalDate.now().toString())) {
 				promoService.clearPromotion();
 				promoService.getPromotion();
 				promoResponse = promoRepository.findByPromoId("promo_mayur28");
@@ -255,7 +256,7 @@ public class ProdServiceImpl implements ProdService {
 			for (ProductDTO prods : products) {
 				setProductPromo(prods, promoResponse);
 			}
-			
+
 			productResponse.setProducts(products);
 			productResponse.setPagination(pagination);
 			productResponse.setTotal(productList.getTotalElements());

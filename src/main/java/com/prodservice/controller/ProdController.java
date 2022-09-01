@@ -96,7 +96,7 @@ public class ProdController {
 	public ResponseEntity<?> getPromotions() throws Exception {
 		try {
 			PromotionResponse promoResponse = promoService.getPromotion();
-			if (promoResponse.getDate().equals(LocalDate.now().toString())) {
+			if (promoResponse != null && promoResponse.getDate().equals(LocalDate.now().toString())) {
 				return ResponseEntity.ok(promoResponse);
 			} else {
 				promoService.clearPromotion();
