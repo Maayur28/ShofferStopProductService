@@ -19,10 +19,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.prodservice.entity.CartEntity;
 import com.prodservice.entity.ProductEntity;
 import com.prodservice.entity.PromotionEntity;
 import com.prodservice.model.response.Pagination;
 import com.prodservice.model.response.ProductResponse;
+import com.prodservice.repository.CartRepository;
 import com.prodservice.repository.ProdRepository;
 import com.prodservice.repository.PromotionRepository;
 import com.prodservice.service.ProdService;
@@ -40,6 +42,9 @@ public class ProdServiceImpl implements ProdService {
 
 	@Autowired
 	PromotionRepository promoRepository;
+
+	@Autowired
+	CartRepository cartRepository;
 
 	public class DiscountComparator implements Comparator<ProductEntity> {
 
@@ -142,7 +147,7 @@ public class ProdServiceImpl implements ProdService {
 	}
 
 	@Override
-	public ProductDTO getProduct(String productId) throws IOException {
+	public ProductDTO getProduct(String productId, String userId) throws IOException {
 		ProductDTO productResponse = new ProductDTO();
 		if (productId != null) {
 			ProductEntity prodResponse = prodRepository.findProductByProductName(productId);
@@ -154,6 +159,12 @@ public class ProdServiceImpl implements ProdService {
 			}
 			BeanUtils.copyProperties(prodResponse, productResponse);
 			setProductPromo(productResponse, promoResponse);
+			if (userId != null) {
+				CartEntity cartRes = cartRepository.findCartByProductNameAndUserId(userId, productId);
+				if (cartRes != null) {
+					productResponse.setPresentInBag(true);
+				}
+			}
 		}
 		return productResponse;
 	}

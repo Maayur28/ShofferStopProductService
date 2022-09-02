@@ -9,18 +9,16 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProductDTO implements Serializable {
+public class CartDTO implements Serializable {
 
 	private static final long serialVersionUID = -6416119022329580080L;
-	
-	private String id;
+
+	private long id;
 	private String productName;
-	private String productCategory;
 	private Integer retailPrice;
 	private Integer discountedPrice;
-	private String prodImage;
-	private String prodDescription;
-	private String prodBrand;
+	private String productImage;
+	private String productBrand;
 	private String promotionMessage;
-	private boolean presentInBag = false;
+	private String productQuantity;
 }

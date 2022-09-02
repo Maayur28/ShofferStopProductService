@@ -52,9 +52,10 @@ public class ProdController {
 	}
 
 	@RequestMapping(value = "/{productId}", method = RequestMethod.GET)
-	public ResponseEntity<?> getProduct(HttpServletRequest request, @PathVariable String productId) throws Exception {
+	public ResponseEntity<?> getProduct(HttpServletRequest request, @PathVariable String productId,
+			@RequestParam String userId) throws Exception {
 		try {
-			ProductDTO prodResponse = prodService.getProduct(productId);
+			ProductDTO prodResponse = prodService.getProduct(productId,userId);
 			return ResponseEntity.ok(prodResponse);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);

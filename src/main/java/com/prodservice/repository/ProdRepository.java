@@ -28,6 +28,9 @@ public interface ProdRepository extends PagingAndSortingRepository<ProductEntity
 	@Query("SELECT p FROM products p where  p.productName = :productName")
 	ProductEntity findProductByProductName(String productName);
 
+	@Query("SELECT p FROM products p where  p.productName IN :cartProducts")
+	List<ProductEntity> findProductByProductNameList(String[] cartProducts);
+
 	@Query("SELECT p FROM products p where  p.productCategory = :categoryId and p.prodBrand IN :filters")
 	Page<ProductEntity> findProductByCategoryFilter(String categoryId, String[] filters, Pageable pageable);
 

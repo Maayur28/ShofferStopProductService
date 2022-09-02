@@ -10,8 +10,8 @@ public interface ProdService {
 	ProductResponse getCategory(String categoryId, String sortBy, String filter, int page, int pageSize)
 			throws IOException;
 
-	ProductDTO getProduct(String productId) throws IOException;
-
 	ProductResponse searchProducts(String searchId, String sortBy, String filter, int page, int pageSize)
 			throws IOException;
+
+	ProductDTO getProduct(String productId, String userId) throws IOException;
 }
