@@ -21,6 +21,7 @@ import com.prodservice.repository.PromotionRepository;
 import com.prodservice.service.CartService;
 import com.prodservice.service.PromotionService;
 import com.prodservice.shared.dto.CartDTO;
+import com.prodservice.shared.dto.GiftDTO;
 import com.prodservice.utils.ErrorMessages;
 
 @Service
@@ -37,7 +38,7 @@ public class CartServiceImpl implements CartService {
 
 	@Autowired
 	PromotionService promoService;
-	
+
 	@Override
 	public long getCartCount(String userId) throws Exception {
 		if (userId == null) {
@@ -48,11 +49,11 @@ public class CartServiceImpl implements CartService {
 		long count = cartRepository.count();
 		return count;
 	}
-	
 
 	@Override
 	public CartResponse getCart(String userId) throws IOException {
 		CartResponse cartResponse = new CartResponse();
+		List<GiftDTO> gifts = new ArrayList<>();
 		List<CartEntity> cartEntity = cartRepository.findCartByuserId(userId);
 		if (cartEntity != null) {
 			List<CartDTO> items = new ArrayList<>();
@@ -74,7 +75,7 @@ public class CartServiceImpl implements CartService {
 					promoResponse = promoRepository.findByPromoId("promo_mayur28");
 				}
 				for (CartDTO item : items) {
-					setCartProductPromo(item, promoResponse);
+					setCartProductPromo(item, promoResponse, gifts);
 					totalDiscount += item.getRetailPrice() - item.getDiscountedPrice();
 					totalAfterDiscount += item.getDiscountedPrice();
 					totalBeforeDiscount += item.getRetailPrice();
@@ -83,17 +84,24 @@ public class CartServiceImpl implements CartService {
 				cartResponse.setTotalAfterDiscount(totalAfterDiscount);
 				cartResponse.setTotalBeforeDiscount(totalBeforeDiscount);
 				cartResponse.setTotalDiscount(totalDiscount);
+				cartResponse.setGifts(gifts);
 			}
 		}
 		return cartResponse;
 	}
 
-	private void setCartProductPromo(CartDTO item, PromotionEntity promoResponse) {
+	private void setCartProductPromo(CartDTO item, PromotionEntity promoResponse, List<GiftDTO> gifts) {
 		List<String> at99 = Arrays.asList(promoResponse.getAt99().split(","));
 		List<String> at499 = Arrays.asList(promoResponse.getAt499().split(","));
 		List<String> at999 = Arrays.asList(promoResponse.getAt999().split(","));
 		if (item.getProductName().equalsIgnoreCase(promoResponse.getBogo())) {
+			GiftDTO gift = new GiftDTO();
+			gift.setProductBrand(item.getProductBrand());
+			gift.setProductImage(item.getProductImage());
+			gift.setProductName(item.getProductName());
+			gift.setProductQuantity(item.getProductQuantity());
 			item.setPromotionMessage("Buy One Get One");
+			gifts.add(gift);
 		} else if (item.getProductName().equalsIgnoreCase(promoResponse.getDotd())) {
 			item.setPromotionMessage("Flash Deal");
 			item.setDiscountedPrice(item.getRetailPrice() / 10);
