@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -55,6 +56,7 @@ public class CartServiceImpl implements CartService {
 		CartResponse cartResponse = new CartResponse();
 		List<GiftDTO> gifts = new ArrayList<>();
 		List<CartEntity> cartEntity = cartRepository.findCartByuserId(userId);
+		Collections.reverse(cartEntity);
 		if (cartEntity != null) {
 			List<CartDTO> items = new ArrayList<>();
 			Integer totalBeforeDiscount = 0, totalAfterDiscount = 0, totalDiscount = 0;
