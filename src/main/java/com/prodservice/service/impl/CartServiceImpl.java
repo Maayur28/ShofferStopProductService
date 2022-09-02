@@ -79,7 +79,10 @@ public class CartServiceImpl implements CartService {
 				}
 				for (CartDTO item : items) {
 					setCartProductPromo(item, promoResponse, gifts);
-					totalDiscount += item.getRetailPrice() - item.getDiscountedPrice();
+					Integer quantity = Integer.valueOf(item.getProductQuantity());
+					item.setDiscountedPrice(item.getDiscountedPrice() * quantity);
+					item.setRetailPrice(item.getRetailPrice() * quantity);
+					totalDiscount += (item.getRetailPrice() - item.getDiscountedPrice());
 					totalAfterDiscount += item.getDiscountedPrice();
 					totalBeforeDiscount += item.getRetailPrice();
 				}
