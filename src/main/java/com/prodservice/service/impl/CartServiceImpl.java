@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.prodservice.entity.CartEntity;
 import com.prodservice.entity.PromotionEntity;
 import com.prodservice.model.request.CartRequest;
+import com.prodservice.model.request.CartUpdateRequest;
 import com.prodservice.model.response.CartResponse;
 import com.prodservice.repository.CartRepository;
 import com.prodservice.repository.ProdRepository;
@@ -146,6 +147,33 @@ public class CartServiceImpl implements CartService {
 		}
 		long count = cartRepository.count();
 		return count;
+	}
+
+	@Override
+	public CartResponse updateCart(CartUpdateRequest cartUpdateRequest, String userId) throws Exception {
+		if (userId == null) {
+			JSONObject obj = new JSONObject();
+			obj.put("error", ErrorMessages.AUTHENTICATION_FAILED.getErrorMessage().toString());
+			throw new Exception(obj.toString());
+		}
+		if (cartUpdateRequest.getProductQuantity() != null
+				&& Integer.valueOf(cartUpdateRequest.getProductQuantity()) > 5) {
+			cartUpdateRequest.setProductQuantity("10");
+		}
+		cartRepository.updateCartByProductNameAndUserId(userId, cartUpdateRequest.getProductName(),
+				cartUpdateRequest.getProductQuantity());
+		return getCart(userId);
+	}
+
+	@Override
+	public CartResponse deleteCart(String productName, String userId) throws Exception {
+		if (userId == null) {
+			JSONObject obj = new JSONObject();
+			obj.put("error", ErrorMessages.AUTHENTICATION_FAILED.getErrorMessage().toString());
+			throw new Exception(obj.toString());
+		}
+		cartRepository.deleteCartByProductNameAndUserId(productName, userId);
+		return getCart(userId);
 	}
 
 }

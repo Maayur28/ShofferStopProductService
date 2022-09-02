@@ -25,4 +25,8 @@ public interface CartRepository extends CrudRepository<CartEntity, String> {
 	@Query("UPDATE carts c SET c.productQuantity = :quantity where  c.productName = :productName and c.userId = :userId")
 	void updateCartByProductNameAndUserId(String userId, String productName, String quantity);
 
+	@Modifying(clearAutomatically = true)
+	@Transactional
+	@Query("DELETE FROM carts c where c.userId = :userId and c.productName = :productName")
+	void deleteCartByProductNameAndUserId(String productName, String userId);
 }
