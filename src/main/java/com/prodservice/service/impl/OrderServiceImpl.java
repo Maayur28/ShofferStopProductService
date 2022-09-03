@@ -83,13 +83,15 @@ public class OrderServiceImpl implements OrderService {
 				orderItemResponse.setDate(order.getDate());
 				orderItemResponse.setTotalPrice(order.getTotalAfterDiscount());
 				orderItemResponse.setId(order.getId());
+
 				if (giftIds.size() > 0 && !giftIds.get(0).isEmpty()) {
 					giftResponse = covertToGiftResponse(giftIds);
 				}
 				if (orderItemIds.size() > 0 && !orderItemIds.get(0).isEmpty()) {
 					itemResponse = covertToItemResponse(orderItemIds);
 				}
-				addressRepository.findAddressById(Long.parseLong(order.getAddressId()));
+				String fullName = addressRepository.findFullNameById(Long.parseLong(order.getAddressId()));
+				orderItemResponse.setFullName(fullName);
 				orderItemResponse.setGifts(giftResponse);
 				orderItemResponse.setItems(itemResponse);
 				orderItems.add(orderItemResponse);
@@ -132,6 +134,7 @@ public class OrderServiceImpl implements OrderService {
 			}
 			UserAddressEntity addressEntity = addressRepository
 					.findAddressById(Long.parseLong(orderEntity.getAddressId()));
+			orderItemResponse.setFullName(addressEntity.getFullName());
 			UserCreateAddressRequestDTO address = new UserCreateAddressRequestDTO();
 			BeanUtils.copyProperties(addressEntity, address);
 			orderItemResponse.setOrderDates(orderEntity.getOrderDates());
