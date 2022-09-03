@@ -13,4 +13,7 @@ public interface OrderEntityRepository extends CrudRepository<OrderIdEntity, Str
 
 	@Query("select o from orderitems o where id in :itemIds")
 	List<OrderIdEntity> findItemsByIds(long[] itemIds);
+
+	@Query("select o from orderitems o where id in :itemId")
+	OrderIdEntity findItemsById(long itemId);
 }

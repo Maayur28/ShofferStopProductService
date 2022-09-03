@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import com.prodservice.entity.GiftEntity;
 import com.prodservice.entity.OrderEntity;
 import com.prodservice.entity.OrderIdEntity;
+import com.prodservice.entity.UserAddressEntity;
+import com.prodservice.model.request.UserCreateAddressRequestDTO;
 import com.prodservice.model.response.OrdersResponse;
 import com.prodservice.model.response.Pagination;
 import com.prodservice.repository.AddressRepository;
@@ -70,7 +72,6 @@ public class OrderServiceImpl implements OrderService {
 		}
 		Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("id").descending());
 		Page<OrderEntity> orderEntity = orderRepository.findPaginatedByUserId(userId, pageable);
-
 		if (orderEntity != null) {
 			List<OrderItemResponse> orderItems = new ArrayList<>();
 			List<GiftDTO> giftResponse = new ArrayList<>();
@@ -88,7 +89,7 @@ public class OrderServiceImpl implements OrderService {
 				if (orderItemIds.size() > 0 && !orderItemIds.get(0).isEmpty()) {
 					itemResponse = covertToItemResponse(orderItemIds);
 				}
-				orderItemResponse.setFullName(addressRepository.findFullNameById(Long.parseLong(order.getAddressId())));
+				addressRepository.findAddressById(Long.parseLong(order.getAddressId()));
 				orderItemResponse.setGifts(giftResponse);
 				orderItemResponse.setItems(itemResponse);
 				orderItems.add(orderItemResponse);
@@ -101,6 +102,45 @@ public class OrderServiceImpl implements OrderService {
 			ordersResponse.setOrderItems(orderItems);
 		}
 		return ordersResponse;
+	}
+
+	@Override
+	public OrderItemResponse getOrderById(String orderId, String userId) throws Exception {
+		OrderItemResponse orderItemResponse = new OrderItemResponse();
+
+		if (userId == null) {
+			JSONObject obj = new JSONObject();
+			obj.put("error", ErrorMessages.AUTHENTICATION_FAILED.getErrorMessage().toString());
+			throw new Exception(obj.toString());
+		}
+		OrderEntity orderEntity = orderRepository.findOrderByUserId(userId, Long.parseLong(orderId));
+
+		if (orderEntity != null) {
+			List<OrderItemResponse> orderItems = new ArrayList<>();
+			List<GiftDTO> giftResponse = new ArrayList<>();
+			List<OrderResponseDTO> itemResponse = new ArrayList<>();
+			List<String> giftIds = new ArrayList<>(Arrays.asList(orderEntity.getGiftIds().split(",")));
+			List<String> orderItemIds = new ArrayList<>(Arrays.asList(orderEntity.getOrderIds().split(",")));
+			orderItemResponse.setDate(orderEntity.getDate());
+			orderItemResponse.setTotalPrice(orderEntity.getTotalAfterDiscount());
+			orderItemResponse.setId(orderEntity.getId());
+			if (giftIds.size() > 0 && !giftIds.get(0).isEmpty()) {
+				giftResponse = covertToGiftResponse(giftIds);
+			}
+			if (orderItemIds.size() > 0 && !orderItemIds.get(0).isEmpty()) {
+				itemResponse = covertToItemResponse(orderItemIds);
+			}
+			UserAddressEntity addressEntity = addressRepository
+					.findAddressById(Long.parseLong(orderEntity.getAddressId()));
+			UserCreateAddressRequestDTO address = new UserCreateAddressRequestDTO();
+			BeanUtils.copyProperties(addressEntity, address);
+			orderItemResponse.setOrderDates(orderEntity.getOrderDates());
+			orderItemResponse.setAddress(address);
+			orderItemResponse.setGifts(giftResponse);
+			orderItemResponse.setItems(itemResponse);
+			orderItems.add(orderItemResponse);
+		}
+		return orderItemResponse;
 	}
 
 	private List<GiftDTO> covertToGiftResponse(List<String> giftIds) {

@@ -11,4 +11,7 @@ public interface AddressRepository extends CrudRepository<UserAddressEntity, Str
 
 	@Query("SELECT a.fullName FROM address a WHERE a.id = :id")
 	String findFullNameById(long id);
+
+	@Query("SELECT a FROM address a WHERE a.id = :id")
+	UserAddressEntity findAddressById(long id);
 }

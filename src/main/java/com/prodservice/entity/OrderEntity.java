@@ -43,8 +43,11 @@ public class OrderEntity implements Serializable {
 
 	@Column(nullable = false)
 	private Integer totalDiscount = 0;
-	
+
 	@Column(nullable = false)
 	private String date;
+
+	@Column(nullable = true)
+	private String orderDates;
 
 }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import org.json.JSONObject;
 import org.springframework.beans.BeanUtils;
@@ -250,8 +251,20 @@ public class CartServiceImpl implements CartService {
 		orderEntity.setGiftIds(String.join(",", giftIds));
 		LocalDate date = LocalDate.now();
 		String orderDate = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).format(date);
-		orderEntity.setDate(orderDate);
+		List<String> orderDateList = new ArrayList<>();
+		orderDateList.add(orderDate);
+		int i = 0;
+		while (i < 3) {
+			Random random = new Random();
+			int num = random.nextInt(3 - 1) + 1;
+			date = date.plusDays(num);
+			String orderDates = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).format(date);
+			orderDateList.add(orderDates);
+			i++;
+		}
 
+		orderEntity.setOrderDates(String.join(",", orderDateList));
+		orderEntity.setDate(orderDate);
 		orderEntity = orderRepository.save(orderEntity);
 		cartRepository.deleteAllById(cardIds);
 
