@@ -13,11 +13,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.prodservice.entity.CartEntity;
+import com.prodservice.entity.GiftEntity;
+import com.prodservice.entity.OrderEntity;
+import com.prodservice.entity.OrderIdEntity;
 import com.prodservice.entity.PromotionEntity;
+import com.prodservice.entity.UserAddressEntity;
 import com.prodservice.model.request.CartRequest;
 import com.prodservice.model.request.CartUpdateRequest;
+import com.prodservice.model.request.OrderRequest;
 import com.prodservice.model.response.CartResponse;
+import com.prodservice.repository.AddressRepository;
 import com.prodservice.repository.CartRepository;
+import com.prodservice.repository.GiftRepository;
+import com.prodservice.repository.OrderEntityRepository;
+import com.prodservice.repository.OrderRepository;
 import com.prodservice.repository.ProdRepository;
 import com.prodservice.repository.PromotionRepository;
 import com.prodservice.service.CartService;
@@ -40,6 +49,18 @@ public class CartServiceImpl implements CartService {
 
 	@Autowired
 	PromotionService promoService;
+
+	@Autowired
+	AddressRepository addressRepository;
+
+	@Autowired
+	OrderEntityRepository orderEntityRepository;
+
+	@Autowired
+	OrderRepository orderRepository;
+
+	@Autowired
+	GiftRepository giftRepository;
 
 	@Override
 	public long getCartCount(String userId) throws Exception {
@@ -179,4 +200,57 @@ public class CartServiceImpl implements CartService {
 		return getCart(userId);
 	}
 
+	@Override
+	public String createOrder(OrderRequest orderRequest, String userId) throws Exception {
+		if (userId == null) {
+			JSONObject obj = new JSONObject();
+			obj.put("error", ErrorMessages.AUTHENTICATION_FAILED.getErrorMessage().toString());
+			throw new Exception(obj.toString());
+		}
+
+		OrderEntity orderEntity = new OrderEntity();
+
+		// SaveAddress
+		UserAddressEntity address = new UserAddressEntity();
+		BeanUtils.copyProperties(orderRequest.getAddress(), address);
+		address.setUserId(userId);
+		address = addressRepository.save(address);
+
+		CartResponse cartResponse = orderRequest.getCart();
+		List<String> giftIds = new ArrayList<>();
+		List<String> orderIds = new ArrayList<>();
+		List<Long> cardIds = new ArrayList<>();
+
+		// Save Gift
+		for (GiftDTO gift : cartResponse.getGifts()) {
+			GiftEntity giftEntity = new GiftEntity();
+			BeanUtils.copyProperties(gift, giftEntity);
+			giftEntity = giftRepository.save(giftEntity);
+			giftIds.add(String.valueOf(giftEntity.getId()));
+		}
+
+		// Save Items
+		for (CartDTO cart : cartResponse.getItems()) {
+			cardIds.add(cart.getId());
+			OrderIdEntity orderIdEntity = new OrderIdEntity();
+			BeanUtils.copyProperties(cart, orderIdEntity);
+			orderIdEntity = orderEntityRepository.save(orderIdEntity);
+			orderIds.add(String.valueOf(orderIdEntity.getId()));
+		}
+
+		// Save Order
+		orderEntity.setAddressId(String.valueOf(address.getId()));
+		orderEntity.setUserId(userId);
+		orderEntity.setTotalAfterDiscount(cartResponse.getTotalAfterDiscount());
+		orderEntity.setTotalDiscount(cartResponse.getTotalDiscount());
+		orderEntity.setTotalBeforeDiscount(cartResponse.getTotalBeforeDiscount());
+		orderEntity.setOrderIds(String.join(",", orderIds));
+		orderEntity.setGiftIds(String.join(",", giftIds));
+
+		orderEntity = orderRepository.save(orderEntity);
+		cartRepository.deleteAllById(cardIds);
+
+		return String.valueOf(orderEntity.getId());
+
+	}
 }

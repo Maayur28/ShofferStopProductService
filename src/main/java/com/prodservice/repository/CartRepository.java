@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import com.prodservice.entity.CartEntity;
 
 @Repository
-public interface CartRepository extends CrudRepository<CartEntity, String> {
+public interface CartRepository extends CrudRepository<CartEntity, Long> {
 
 	@Query("SELECT c FROM carts c where  c.userId = :userId")
 	List<CartEntity> findCartByuserId(String userId);

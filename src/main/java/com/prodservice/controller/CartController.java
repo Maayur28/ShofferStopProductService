@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.prodservice.model.request.CartRequest;
 import com.prodservice.model.request.CartUpdateRequest;
+import com.prodservice.model.request.OrderRequest;
 import com.prodservice.model.response.CartResponse;
 import com.prodservice.service.CartService;
 
@@ -45,6 +46,17 @@ public class CartController {
 		try {
 			long cartCount = cartService.createCart(cartRequest, userId);
 			return ResponseEntity.ok(cartCount);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@RequestMapping(value = "/order/{userId}", method = RequestMethod.POST)
+	public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest, @PathVariable String userId)
+			throws Exception {
+		try {
+			String orderId = cartService.createOrder(orderRequest, userId);
+			return ResponseEntity.ok(orderId);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}
