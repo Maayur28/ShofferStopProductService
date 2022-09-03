@@ -2,6 +2,8 @@ package com.prodservice.service.impl;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -246,6 +248,9 @@ public class CartServiceImpl implements CartService {
 		orderEntity.setTotalBeforeDiscount(cartResponse.getTotalBeforeDiscount());
 		orderEntity.setOrderIds(String.join(",", orderIds));
 		orderEntity.setGiftIds(String.join(",", giftIds));
+		LocalDate date = LocalDate.now();
+		String orderDate = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).format(date);
+		orderEntity.setDate(orderDate);
 
 		orderEntity = orderRepository.save(orderEntity);
 		cartRepository.deleteAllById(cardIds);

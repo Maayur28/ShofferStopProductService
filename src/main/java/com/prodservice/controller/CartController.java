@@ -50,7 +50,7 @@ public class CartController {
 			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}
 	}
-	
+
 	@RequestMapping(value = "/order/{userId}", method = RequestMethod.POST)
 	public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest, @PathVariable String userId)
 			throws Exception {
@@ -76,7 +76,7 @@ public class CartController {
 			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}
 	}
-	
+
 	@RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteCart(@RequestParam String productName, @PathVariable String userId)
 			throws Exception {
