@@ -263,7 +263,7 @@ public class CartServiceImpl implements CartService {
 			i++;
 		}
 
-		orderEntity.setOrderDates(String.join(",", orderDateList));
+		orderEntity.setOrderDates(String.join("-", orderDateList));
 		orderEntity.setDate(orderDate);
 		orderEntity = orderRepository.save(orderEntity);
 		cartRepository.deleteAllById(cardIds);
