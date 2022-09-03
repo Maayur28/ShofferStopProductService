@@ -1,5 +1,8 @@
 package com.prodservice.service.impl;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -137,10 +140,28 @@ public class OrderServiceImpl implements OrderService {
 			orderItemResponse.setFullName(addressEntity.getFullName());
 			UserCreateAddressRequestDTO address = new UserCreateAddressRequestDTO();
 			BeanUtils.copyProperties(addressEntity, address);
-			orderItemResponse.setOrderDates(orderEntity.getOrderDates());
 			orderItemResponse.setAddress(address);
 			orderItemResponse.setGifts(giftResponse);
 			orderItemResponse.setItems(itemResponse);
+			LocalDate todayDate = LocalDate.now();
+			if (orderEntity.getOrderDates() != null) {
+				List<String> orderDatesStatus = new ArrayList<>();
+				List<String> dates = Arrays.asList(orderEntity.getOrderDates().split("-"));
+				orderItemResponse.setOrderDates(dates);
+				for (String date : dates) {
+					if (LocalDate.parse(date, DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
+							.isBefore(todayDate)) {
+						orderDatesStatus.add("-1");
+
+					} else if (LocalDate.parse(date, DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
+							.isEqual(todayDate)) {
+						orderDatesStatus.add("0");
+					} else {
+						orderDatesStatus.add("1");
+					}
+				}
+				orderItemResponse.setOrderDatesStatus(orderDatesStatus);
+			}
 			orderItems.add(orderItemResponse);
 		}
 		return orderItemResponse;

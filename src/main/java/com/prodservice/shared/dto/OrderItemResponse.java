@@ -19,5 +19,6 @@ public class OrderItemResponse {
 	private List<GiftDTO> gifts;
 	private String fullName;
 	private UserCreateAddressRequestDTO address;
-	private String orderDates;
+	private List<String> orderDates;
+	private List<String> orderDatesStatus;
 }
