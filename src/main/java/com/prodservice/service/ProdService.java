@@ -2,6 +2,7 @@ package com.prodservice.service;
 
 import java.io.IOException;
 
+import com.prodservice.model.request.WishlistRequest;
 import com.prodservice.model.response.ProductResponse;
 import com.prodservice.shared.dto.ProductDTO;
 
@@ -14,4 +15,6 @@ public interface ProdService {
 			throws IOException;
 
 	ProductDTO getProduct(String productId, String userId) throws IOException;
+
+	ProductResponse getWishlist(WishlistRequest wishlistRequest) throws IOException;
 }

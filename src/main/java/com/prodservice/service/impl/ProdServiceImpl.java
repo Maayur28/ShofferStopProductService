@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import com.prodservice.entity.CartEntity;
 import com.prodservice.entity.ProductEntity;
 import com.prodservice.entity.PromotionEntity;
+import com.prodservice.model.request.WishlistRequest;
 import com.prodservice.model.response.Pagination;
 import com.prodservice.model.response.ProductResponse;
 import com.prodservice.repository.CartRepository;
@@ -142,6 +143,35 @@ public class ProdServiceImpl implements ProdService {
 			productResponse.setTotal(productList.getTotalElements());
 			productResponse.setBrands(newList);
 
+		}
+		return productResponse;
+	}
+
+	@Override
+	public ProductResponse getWishlist(WishlistRequest wishlistRequest) throws IOException {
+		ProductResponse productResponse = new ProductResponse();
+		if (wishlistRequest != null && wishlistRequest.getProducts() != null
+				&& !wishlistRequest.getProducts().isEmpty()) {
+			List<ProductEntity> productList = prodRepository
+					.findProductByProductNameList(wishlistRequest.getProducts());
+
+			List<ProductDTO> products = new ArrayList<>();
+
+			for (ProductEntity prod : productList) {
+				ProductDTO prods = new ProductDTO();
+				BeanUtils.copyProperties(prod, prods);
+				products.add(prods);
+			}
+			PromotionEntity promoResponse = promoRepository.findByPromoId("promo_mayur28");
+			if (promoResponse == null || !promoResponse.getPromoDate().equals(LocalDate.now().toString())) {
+				promoService.clearPromotion();
+				promoService.getPromotion();
+				promoResponse = promoRepository.findByPromoId("promo_mayur28");
+			}
+			for (ProductDTO prods : products) {
+				setProductPromo(prods, promoResponse);
+			}
+			productResponse.setProducts(products);
 		}
 		return productResponse;
 	}

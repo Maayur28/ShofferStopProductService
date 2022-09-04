@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.prodservice.model.request.RatingCreateRequest;
+import com.prodservice.model.request.WishlistRequest;
 import com.prodservice.model.response.ProductResponse;
 import com.prodservice.model.response.PromotionResponse;
 import com.prodservice.model.response.RatingCreateResponse;
@@ -55,7 +56,17 @@ public class ProdController {
 	public ResponseEntity<?> getProduct(HttpServletRequest request, @PathVariable String productId,
 			@RequestParam String userId) throws Exception {
 		try {
-			ProductDTO prodResponse = prodService.getProduct(productId,userId);
+			ProductDTO prodResponse = prodService.getProduct(productId, userId);
+			return ResponseEntity.ok(prodResponse);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	@RequestMapping(value = "/wishlist", method = RequestMethod.POST)
+	public ResponseEntity<?> getWishlist(@RequestBody WishlistRequest wishlistRequest) throws Exception {
+		try {
+			ProductResponse prodResponse = prodService.getWishlist(wishlistRequest);
 			return ResponseEntity.ok(prodResponse);
 		} catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
