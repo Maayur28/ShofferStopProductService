@@ -161,6 +161,7 @@ public class OrderServiceImpl implements OrderService {
 					}
 				}
 				orderItemResponse.setOrderDatesStatus(orderDatesStatus);
+				System.out.println(orderDatesStatus);
 			}
 			orderItems.add(orderItemResponse);
 		}
