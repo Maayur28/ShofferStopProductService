@@ -28,7 +28,7 @@ import com.prodservice.shared.dto.ProductDTO;
 
 @RestController
 @RequestMapping("product")
-@CrossOrigin(origins = { "http://localhost:3000", "https://www.shofferstop.com" })
+@CrossOrigin(origins = { "http://localhost:4000", "http://localhost:3000", "https://www.shofferstop.com" })
 public class ProdController {
 
 	@Autowired
