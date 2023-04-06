@@ -12,7 +12,7 @@
 	<groupId>com.prodservice</groupId>
 	<artifactId>prod-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>prod-service</name>
 	<description>Prod Service for Ecomm</description>
 	<properties>
