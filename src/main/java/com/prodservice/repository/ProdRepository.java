@@ -13,13 +13,15 @@ import com.prodservice.entity.ProductEntity;
 @Repository
 public interface ProdRepository extends PagingAndSortingRepository<ProductEntity, String> {
 
-	@Query("SELECT p FROM products p ORDER BY NEWID()")
+	@Query("SELECT p FROM products p ORDER BY RAND()")
 	Page<ProductEntity> findCarousel(Pageable pageable);
 
-	@Query("SELECT p FROM products p where p.retailPrice> :min and p.retailPrice<= :max ORDER BY NEWID()")
+	@Query("SELECT p FROM products p where p.retailPrice> :min and p.retailPrice<= :max ORDER BY RAND()")
 	Page<ProductEntity> findPromoAt(int min, int max, Pageable pageable);
-
-	@Query("SELECT p FROM products p where p.productName <> :prodBogo  ORDER BY NEWID()")
+	
+	//azure NEWID()
+	//mysql RAND()
+	@Query("SELECT p FROM products p where p.productName <> :prodBogo  ORDER BY RAND()")
 	Page<ProductEntity> findProdPromo(String prodBogo, Pageable pageable);
 
 	@Query("SELECT p FROM products p where  p.productCategory = :categoryId")
