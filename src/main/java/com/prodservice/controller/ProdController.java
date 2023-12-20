@@ -43,7 +43,7 @@ public class ProdController {
 	@RequestMapping(value = "/category/{categoryId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getCategory(HttpServletRequest request, @PathVariable String categoryId,
 			@RequestParam String sortBy, @RequestParam String filter, @RequestParam int page,
-			@RequestParam int pageSize) throws Exception {
+			@RequestParam int pageSize) {
 		try {
 			ProductResponse prodResponse = prodService.getCategory(categoryId, sortBy, filter, page, pageSize);
 			return ResponseEntity.ok(prodResponse);
@@ -54,7 +54,7 @@ public class ProdController {
 
 	@RequestMapping(value = "/{productId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getProduct(HttpServletRequest request, @PathVariable String productId,
-			@RequestParam String userId) throws Exception {
+			@RequestParam String userId) {
 		try {
 			ProductDTO prodResponse = prodService.getProduct(productId, userId);
 			return ResponseEntity.ok(prodResponse);
@@ -64,7 +64,7 @@ public class ProdController {
 	}
 
 	@RequestMapping(value = "/wishlist", method = RequestMethod.POST)
-	public ResponseEntity<?> getWishlist(@RequestBody WishlistRequest wishlistRequest) throws Exception {
+	public ResponseEntity<?> getWishlist(@RequestBody WishlistRequest wishlistRequest) {
 		try {
 			ProductResponse prodResponse = prodService.getWishlist(wishlistRequest);
 			return ResponseEntity.ok(prodResponse);
@@ -74,7 +74,7 @@ public class ProdController {
 	}
 
 	@RequestMapping(value = "/ratings", method = RequestMethod.POST)
-	public ResponseEntity<?> createUserRating(@RequestBody RatingCreateRequest ratingCreateRequest) throws Exception {
+	public ResponseEntity<?> createUserRating(@RequestBody RatingCreateRequest ratingCreateRequest) {
 		try {
 			RatingCreateResponse totalRatings = ratingService.createRating(ratingCreateRequest);
 			return ResponseEntity.ok(totalRatings);
@@ -84,7 +84,7 @@ public class ProdController {
 	}
 
 	@RequestMapping(value = "/ratings", method = RequestMethod.GET)
-	public ResponseEntity<?> getRating(@RequestParam String userId, @RequestParam String productName) throws Exception {
+	public ResponseEntity<?> getRating(@RequestParam String userId, @RequestParam String productName) {
 		try {
 			RatingCreateResponse totalRatings = ratingService.getRating(userId, productName);
 			return ResponseEntity.ok(totalRatings);
@@ -95,7 +95,7 @@ public class ProdController {
 
 	@RequestMapping(value = "/search/{searchId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getSearchProducts(@PathVariable String searchId, @RequestParam String sortBy,
-			@RequestParam String filter, @RequestParam int page, @RequestParam int pageSize) throws Exception {
+			@RequestParam String filter, @RequestParam int page, @RequestParam int pageSize) {
 		try {
 			ProductResponse prodResponse = prodService.searchProducts(searchId, sortBy, filter, page, pageSize);
 			return ResponseEntity.ok(prodResponse);
@@ -105,17 +105,15 @@ public class ProdController {
 	}
 
 	@RequestMapping(value = "/promotions", method = RequestMethod.GET)
-	public ResponseEntity<?> getPromotions() throws Exception {
+	public ResponseEntity<?> getPromotions() {
 		try {
 			PromotionResponse promoResponse = promoService.getPromotion();
-			if (promoResponse != null && promoResponse.getDate().equals(LocalDate.now().toString())) {
-				return ResponseEntity.ok(promoResponse);
-			} else {
-				promoService.clearPromotion();
-				promoResponse = promoService.getPromotion();
-				return ResponseEntity.ok(promoResponse);
-			}
-		} catch (Exception e) {
+            if (promoResponse == null || !promoResponse.getDate().equals(LocalDate.now().toString())) {
+                promoService.clearPromotion();
+                promoResponse = promoService.getPromotion();
+            }
+            return ResponseEntity.ok(promoResponse);
+        } catch (Exception e) {
 			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}
 	}
