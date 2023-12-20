@@ -18,7 +18,7 @@ import com.prodservice.shared.dto.OrderItemResponse;
 
 @RestController
 @RequestMapping("order")
-@CrossOrigin(origins = { "http://localhost:3000", "https://www.shofferstop.com" })
+@CrossOrigin(origins = { "https://shofferstop.vercel.app", "https://www.shofferstop.in" })
 public class OrderController {
 
 	@Autowired

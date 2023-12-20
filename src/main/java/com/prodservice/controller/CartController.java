@@ -20,7 +20,7 @@ import com.prodservice.service.CartService;
 
 @RestController
 @RequestMapping("cart")
-@CrossOrigin(origins = { "http://localhost:3000", "https://www.shofferstop.com" })
+@CrossOrigin(origins = { "https://shofferstop.vercel.app", "https://www.shofferstop.in" })
 public class CartController {
 
 	@Autowired
